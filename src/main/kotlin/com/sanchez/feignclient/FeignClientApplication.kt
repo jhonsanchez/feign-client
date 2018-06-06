@@ -1,0 +1,46 @@
+package com.sanchez.feignclient
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.cloud.netflix.hystrix.EnableHystrix
+import org.springframework.cloud.openfeign.EnableFeignClients
+import org.springframework.cloud.openfeign.FeignClient
+import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+
+@EnableFeignClients
+@EnableHystrix
+@SpringBootApplication(exclude = [RabbitAutoConfiguration::class])
+class FeignClientApplication
+
+fun main(args: Array<String>) {
+    SpringApplicationBuilder()
+            .sources(FeignClientApplication::class.java)
+            .run(*args)
+}
+
+@RestController
+class MyController(val feignClient: MyFeign) {
+    @GetMapping("/")
+    fun hola(): String = feignClient.hello("demo")
+
+}
+
+@FeignClient(name = "test",url = "http://localhost:8000/" ,fallback = MyFallback::class)
+interface MyFeign {
+    @GetMapping("/hello")
+    fun hello(@RequestParam(value = "name") name: String): String
+
+}
+
+@Component
+class MyFallback : MyFeign {
+    override fun hello(name: String): String {
+        return "muy mal"
+    }
+
+}
+
