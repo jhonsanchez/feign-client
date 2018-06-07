@@ -25,14 +25,22 @@ fun main(args: Array<String>) {
 }
 
 @RestController
-class MyController(val feignClient: MyFeign) {
+class MyController(val feignClient: MyFeign, val feignClient2: MyFeign2) {
     @GetMapping("/")
     fun hola(): String = feignClient.hello("demo")
+    @GetMapping("/test2")
+    fun hola2(): String = feignClient2.hello("demo")
 
 }
 
 @FeignClient(name = "test" ,fallback = MyFallback::class)
 interface MyFeign {
+    @GetMapping("/hello")
+    fun hello(@RequestParam(value = "name") name: String): String
+
+}
+@FeignClient(name = "producer")
+interface MyFeign2 {
     @GetMapping("/hello")
     fun hello(@RequestParam(value = "name") name: String): String
 
