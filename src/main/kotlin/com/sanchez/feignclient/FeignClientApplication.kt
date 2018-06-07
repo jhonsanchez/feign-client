@@ -3,6 +3,7 @@ package com.sanchez.feignclient
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
 import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient
 import org.springframework.cloud.netflix.hystrix.EnableHystrix
 import org.springframework.cloud.openfeign.EnableFeignClients
 import org.springframework.cloud.openfeign.FeignClient
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @EnableFeignClients
 @EnableHystrix
+@EnableDiscoveryClient
 @SpringBootApplication(exclude = [RabbitAutoConfiguration::class])
 class FeignClientApplication
 
@@ -29,7 +31,7 @@ class MyController(val feignClient: MyFeign) {
 
 }
 
-@FeignClient(name = "test",url = "http://localhost:8000/" ,fallback = MyFallback::class)
+@FeignClient(name = "test" ,fallback = MyFallback::class)
 interface MyFeign {
     @GetMapping("/hello")
     fun hello(@RequestParam(value = "name") name: String): String
